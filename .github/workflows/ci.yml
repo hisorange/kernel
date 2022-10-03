@@ -8,12 +8,14 @@ on:
       - '**.js'
       - '**.yml'
       - '**.json'
+      - '**.md'
   pull_request:
     paths:
       - '**.ts'
       - '**.js'
       - '**.yml'
       - '**.json'
+      - '**.md'
 
 jobs:
   tests:
