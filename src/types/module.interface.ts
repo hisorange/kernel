@@ -1,4 +1,4 @@
-import { IKernel } from '../../types/kernel.interface';
+import { IKernel } from './kernel.interface';
 
 export interface IModule {
   /**

@@ -13,16 +13,17 @@ import {
 import { DepGraph } from 'dependency-graph';
 import { default as timeout } from 'p-timeout';
 import {
-  IContext,
-  ILogger,
-  IModule,
   IModuleMeta,
   ModuleConcrete,
   MODULE_META_KEY,
-} from './container';
+} from './decorator/module.decorator';
+
 import { Exception } from './exceptions/exception';
 import { createLogger } from './logger/create-logger';
+import { IContext } from './types/container.interface';
 import { IKernel } from './types/kernel.interface';
+import { ILogger } from './types/logger.interface';
+import { IModule } from './types/module.interface';
 
 /**
  * Kernel is responsible to manage the modules defined by the developer,

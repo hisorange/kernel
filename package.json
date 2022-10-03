@@ -1,6 +1,6 @@
 {
   "name": "@hisorange/kernel",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Application kernel with context and modular loading support",
   "main": "index.js",
   "repository": "https://github.com/hisorange/kernel",

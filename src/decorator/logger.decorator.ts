@@ -1,5 +1,5 @@
 import { Context, inject } from '@loopback/context';
-import { IKernel } from '../../types/kernel.interface';
+import { IKernel } from '../types/kernel.interface';
 import { ILogger } from '../types/logger.interface';
 
 export function Logger(

@@ -1,5 +1,6 @@
 import { Constructor } from '@loopback/context';
-import { IModule, ModuleResolver } from '.';
+import { ModuleResolver } from './decorator/module.decorator';
+import { IModule } from './types/module.interface';
 
 export const moduleRef = (
   resolve: () => Constructor<IModule>,

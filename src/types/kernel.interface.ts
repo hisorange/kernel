@@ -1,5 +1,7 @@
 import { BindingAddress, Constructor, ValueOrPromise } from '@loopback/context';
-import { IContext, ILogger, IModule } from '../container';
+import { IContext } from './container.interface';
+import { ILogger } from './logger.interface';
+import { IModule } from './module.interface';
 
 export interface IKernel {
   /**
