@@ -1,10 +1,13 @@
 export { Provider } from '@loopback/context';
 export * from './decorator/inject.decorator';
+export * from './decorator/job.decorator';
 export * from './decorator/logger.decorator';
 export * from './decorator/module.decorator';
+export * from './decorator/scheduler.decorator';
 export * from './decorator/service.decorator';
 export * from './exceptions/exception';
 export * from './kernel';
+export * from './modules/scheduler.module';
 export * from './types/container.interface';
 export * from './types/kernel.interface';
 export * from './types/logger.interface';

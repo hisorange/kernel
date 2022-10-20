@@ -8,6 +8,12 @@
 
 Just my personal take on an async application kernel. It has injection management, simple module system, and a few other things.
 
+Notable features are:
+
+- Dependency injection
+- Module with lifecycle hooks and dependency order
+- Scheduled tasks with CRON and injections
+
 ## Getting Started
 
 ```sh
@@ -28,3 +34,44 @@ process.on(
   kernel.stop().then(() => process.exit(0)),
 );
 ```
+
+## Module
+
+```ts
+@Module({
+  providers: [],
+  imports: [ConfigModule],
+  dependsOn: [DatabaseModule],
+})
+export class MyModule implements IModule {
+  public async onBoot() {
+    // Executed in dependency order, you can setup your module here.
+    // And the dependencies are already booted.
+  }
+
+  public async onStart() {
+    // Runs after every module is booted.
+    // Can do any async tasks here.
+  }
+
+  public async onStop() {
+    // Called when a stop signal is received.
+  }
+}
+```
+
+## Scheduler
+
+```ts
+@Scheduler()
+export class MyScheduler {
+  constructor(private readonly myService: MyService) {}
+
+  @Job('*/5 * * * * *')
+  public async myJob() {
+    this.myService.doSomething();
+  }
+}
+```
+
+Once I gotta write a proper readme, but for now, this is it.

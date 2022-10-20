@@ -1,6 +1,6 @@
 {
   "name": "@hisorange/kernel",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Application kernel with context and modular loading support",
   "main": "build/index.js",
   "repository": "https://github.com/hisorange/kernel",
@@ -17,12 +17,14 @@
   },
   "devDependencies": {
     "@types/node": "^18.8.0",
+    "@types/node-schedule": "^2.1.0",
     "typescript": "^4.8.4"
   },
   "dependencies": {
     "@loopback/context": "^5.0.3",
     "@loopback/metadata": "^5.0.3",
     "dependency-graph": "^0.11.0",
+    "node-schedule": "^2.1.0",
     "p-timeout": "^6.0.0",
     "pino": "^8.6.1"
   }
