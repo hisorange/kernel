@@ -1,3 +1,4 @@
+export { Provider } from '@loopback/context';
 export * from './decorator/inject.decorator';
 export * from './decorator/logger.decorator';
 export * from './decorator/module.decorator';
