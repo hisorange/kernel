@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { ILogger } from '../types/logger.interface';
+import { ILogger } from '../types/logger.interface.js';
 
 export const createLogger = (): ILogger => {
   const instance = 'app';

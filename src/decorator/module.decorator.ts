@@ -1,6 +1,6 @@
 import { Constructor } from '@loopback/context';
 import { ClassDecoratorFactory } from '@loopback/metadata';
-import { IModule } from '../types/module.interface';
+import { IModule } from '../types/module.interface.js';
 
 export const MODULE_META_KEY = 'hisorange:module';
 

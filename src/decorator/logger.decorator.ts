@@ -1,6 +1,6 @@
 import { Context, inject } from '@loopback/context';
-import { IKernel } from '../types/kernel.interface';
-import { ILogger } from '../types/logger.interface';
+import { IKernel } from '../types/kernel.interface.js';
+import { ILogger } from '../types/logger.interface.js';
 
 export function Logger(
   scope?: string,

@@ -1,7 +1,7 @@
 import { BindingAddress, Constructor, ValueOrPromise } from '@loopback/context';
-import { IContext } from './container.interface';
-import { ILogger } from './logger.interface';
-import { IModule } from './module.interface';
+import { IContext } from './container.interface.js';
+import { ILogger } from './logger.interface.js';
+import { IModule } from './module.interface.js';
 
 export interface IKernel {
   /**

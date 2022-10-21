@@ -1,7 +1,7 @@
 import { Constructor, MetadataInspector } from '@loopback/context';
 import schedule from 'node-schedule';
 import { Inject } from '../decorator/inject.decorator.js';
-import { JobParams, JOB_META_KEY } from '../decorator/job.decorator';
+import { JobParams, JOB_META_KEY } from '../decorator/job.decorator.js';
 import { Logger } from '../decorator/logger.decorator.js';
 import { Service } from '../decorator/service.decorator.js';
 import { IKernel } from '../types/kernel.interface.js';

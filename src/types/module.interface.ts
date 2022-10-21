@@ -1,4 +1,4 @@
-import { IKernel } from './kernel.interface';
+import { IKernel } from './kernel.interface.js';
 
 export interface IModule {
   /**

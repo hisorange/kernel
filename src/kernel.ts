@@ -16,14 +16,14 @@ import {
   IModuleMeta,
   ModuleConcrete,
   MODULE_META_KEY,
-} from './decorator/module.decorator';
+} from './decorator/module.decorator.js';
 
-import { Exception } from './exceptions/exception';
-import { createLogger } from './logger/create-logger';
-import { IContext } from './types/container.interface';
-import { IKernel } from './types/kernel.interface';
-import { ILogger } from './types/logger.interface';
-import { IModule } from './types/module.interface';
+import { Exception } from './exceptions/exception.js';
+import { createLogger } from './logger/create-logger.js';
+import { IContext } from './types/container.interface.js';
+import { IKernel } from './types/kernel.interface.js';
+import { ILogger } from './types/logger.interface.js';
+import { IModule } from './types/module.interface.js';
 
 /**
  * Kernel is responsible to manage the modules defined by the developer,
