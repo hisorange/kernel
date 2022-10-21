@@ -7,6 +7,7 @@ export * from './decorator/scheduler.decorator';
 export * from './decorator/service.decorator';
 export * from './exceptions/exception';
 export * from './kernel';
+export * from './module-ref';
 export * from './modules/scheduler.module';
 export * from './types/container.interface';
 export * from './types/kernel.interface';
