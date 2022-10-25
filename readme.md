@@ -13,6 +13,7 @@ Notable features are:
 - Dependency injection
 - Module with lifecycle hooks and dependency order
 - Scheduled tasks with CRON and injections
+- Built in event bus and respective decorators
 
 ## Getting Started
 
@@ -67,8 +68,27 @@ export class MyModule implements IModule {
 export class MyScheduler {
   constructor(private readonly myService: MyService) {}
 
-  @Job('*/5 * * * * *')
+  @Job({
+    name: 'my-named-job',
+    timings: '*/5 * * * * *',
+  })
   public async myJob() {
+    this.myService.doSomething();
+  }
+}
+```
+
+## Event Handler
+
+```ts
+@Observer()
+export class MyObserver {
+  constructor(private readonly myService: MyService) {}
+
+  @On('sql.query', {
+    debounce: 1_000,
+  })
+  public async onSqlQUery() {
     this.myService.doSomething();
   }
 }
