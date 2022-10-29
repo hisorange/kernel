@@ -24,19 +24,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Expose GIT Commit Data
         uses: rlespinasse/git-commit-data-action@v1.x
 
       - name: Install the Interpreter
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
           cache: yarn
 
       - name: Load the Cached Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
@@ -70,17 +70,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install the Interpreter
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
           always-auth: true
           cache: yarn
 
       - name: Load the Cached Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
@@ -100,7 +100,7 @@ jobs:
 
       - name: Change the Interpreter for GPR
         if: ${{ steps.npm-publish.outputs.changed == 'true' }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
           registry-url: 'https://npm.pkg.github.com'
@@ -125,7 +125,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
