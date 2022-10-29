@@ -33,5 +33,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "exclude": ["./build", "./node_modules"],
-  "include": ["./src"]
+  "include": ["./src/index.ts"]
 }

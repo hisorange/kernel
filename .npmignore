@@ -1,8 +1,10 @@
 .git
+.github
 .npmignore
 .prettierrc
 .vscode
 node_modules
 src
+jest.config.json
 tsconfig.json
 yarn.lock

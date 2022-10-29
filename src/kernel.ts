@@ -12,6 +12,7 @@ import {
 } from '@loopback/context';
 import { DepGraph } from 'dependency-graph';
 import { default as timeout } from 'p-timeout';
+import { KERNEL_BINDING } from './bindings.js';
 import {
   IModuleMeta,
   ModuleConcrete,
@@ -55,7 +56,7 @@ export class Kernel implements IKernel {
     this.logger.debug('Creating the context...');
 
     this.context = new Context('app');
-    this.context.bind('Kernel').to(this);
+    this.context.bind(KERNEL_BINDING).to(this);
 
     this.logger.info('Context is ready!');
   }

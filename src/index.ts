@@ -1,4 +1,5 @@
 export { Constructor, Provider } from '@loopback/context';
+export * from './bindings.js';
 export * from './decorator/inject.decorator.js';
 export * from './decorator/job.decorator.js';
 export * from './decorator/logger.decorator.js';

@@ -5,6 +5,7 @@
 [![NPM](https://img.shields.io/npm/dt/@hisorange/kernel?label=NPM)](https://www.npmjs.com/package/@hisorange/kernel)
 [![GitHub Last Update](https://img.shields.io/github/last-commit/hisorange/kernel?label=Last%20Updated)](https://github.com/hisorange/kernel/commits/main)
 [![License](https://img.shields.io/github/license/hisorange/kernel?label=License)](https://github.com/hisorange/kernel/blob/main/license)
+[![Coverage Status](https://coveralls.io/repos/github/hisorange/kernel/badge.svg?branch=main)](https://coveralls.io/github/hisorangekernel?branch=main)
 
 Just my personal take on an async application kernel. It has injection management, simple module system, and a few other things.
 
