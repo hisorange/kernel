@@ -10,6 +10,7 @@ import {
   Reflector,
   ValueOrPromise,
 } from '@loopback/context';
+import chalk from 'chalk';
 import { DepGraph } from 'dependency-graph';
 import { default as timeout } from 'p-timeout';
 import { KERNEL_BINDING } from './bindings.js';
@@ -22,6 +23,7 @@ import {
 import { Exception } from './exceptions/exception.js';
 import { createLogger } from './logger/create-logger.js';
 import { IContext } from './types/container.interface.js';
+import { ExitCode } from './types/exit-code.enum.js';
 import { IKernel } from './types/kernel.interface.js';
 import { ILogger } from './types/logger.interface.js';
 import { IModule } from './types/module.interface.js';
@@ -59,6 +61,22 @@ export class Kernel implements IKernel {
     this.context.bind(KERNEL_BINDING).to(this);
 
     this.logger.info('Context is ready!');
+
+    // Register the shutdown hooks.
+    process.on('SIGINT', this.shutdownHandler.bind(this));
+    process.on('SIGTERM', this.shutdownHandler.bind(this));
+  }
+
+  protected async shutdownHandler(signal: NodeJS.Signals): Promise<void> {
+    console.log('');
+
+    if (this.logger) {
+      this.logger.warn('Received shutdown signal [%s]', signal);
+    } else {
+      console.warn('Received shutdown signal [%s]', signal);
+    }
+
+    await this.stop();
   }
 
   /**
@@ -181,19 +199,14 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  register(modules: Constructor<IModule>[]): boolean {
+  register(modules: Constructor<IModule>[]): void {
     this.logger.debug('Discovery started...');
 
     try {
       this.discover(modules);
       this.logger.info('Discovery successful!');
-
-      return true;
     } catch (error) {
-      this.logger.error('Discovery failed!');
-      this.logger.error(error);
-
-      return false;
+      this.panic('Discovery failed!', ExitCode.DISCOVERY_FAILED, error);
     }
   }
 
@@ -223,47 +236,34 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  async boostrap(): Promise<boolean> {
+  async boostrap(): Promise<void> {
     this.logger.debug('Boostrap request received');
     this.logger.debug('Invoking the module bootstrap sequence...');
 
-    try {
-      const dependencies = this.moduleGraph.overallOrder(false);
+    const dependencies = this.moduleGraph.overallOrder(false);
 
-      for (const key of dependencies) {
-        try {
-          const binding = this.context.getBinding<Constructor<IModule>>(key);
+    for (const key of dependencies) {
+      const binding = this.context.getBinding<Constructor<IModule>>(key);
 
-          await this.context
-            .get<IModule>(binding.key)
-            .then(module => this.doBootModule(binding, module));
-        } catch (error) {
-          this.logger.error('Module [%s] failed to boot!', key);
-
-          throw error;
-        }
-      }
-    } catch (error) {
-      this.logger.error('Bootstrap sequence failed!');
-      this.logger.error(error);
-      console.error(error);
-
-      // Initiate a graceful shutdown so the modules
-      // can still close their handles.
-      await this.stop();
-
-      return false;
+      await this.context
+        .get<IModule>(binding.key)
+        .then(module => this.doBootModule(binding, module))
+        .catch(error =>
+          this.panic(
+            `Module [${key}] failed to bootstrap!`,
+            ExitCode.BOOT_FAILED,
+            error,
+          ),
+        );
     }
 
     this.logger.info("Bootstrap successful. Let's do this!");
-
-    return true;
   }
 
   /**
    * @inheritdoc
    */
-  async start() {
+  async start(): Promise<void> {
     const processes = [];
 
     // Propagate the onStart event, so the modules can register their late handles.
@@ -325,32 +325,40 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  async stop(): Promise<boolean> {
-    this.logger.debug('Shutdown request received');
-    this.logger.debug('Invoking the graceful shutdown sequence...');
+  async stop(): Promise<void> {
+    this.logger.info('Stop request received');
+    this.logger.debug('Invoking the graceful stop sequence...');
+
+    const timeout = // Graceful shutdown timeout
+      setTimeout(() => {
+        this.panic(
+          'Modules did not shutdown in time, forcing shutdown',
+          ExitCode.FORCED_SHUTDOWN,
+        );
+      }, 10_000);
 
     const dependencies = this.moduleGraph.overallOrder(false).reverse();
-    let dirty = false;
 
     for (const key of dependencies) {
       const binding = this.context.getBinding(key);
 
       await this.context.get<IModule>(binding.key).then(module =>
         this.doStopModule(binding, module).catch(e => {
-          this.logger.warn(
-            'Module [%s] had an unhandled exception in the stop hook: [%s]',
-            binding.source.value.name,
-            e?.message,
+          this.panic(
+            `Module [${binding.source.value.name}] failed to stop!`,
+            ExitCode.STOP_FAILED,
+            e,
           );
-
-          dirty = true;
         }),
       );
     }
 
     this.logger.info('Shutdown sequence successful! See You <3');
 
-    return !dirty;
+    clearTimeout(timeout);
+    process.off('SIGINT', this.shutdownHandler.bind(this));
+    process.off('SIGTERM', this.shutdownHandler.bind(this));
+    process.exit(ExitCode.OK);
   }
 
   /**
@@ -414,5 +422,19 @@ export class Kernel implements IKernel {
    */
   create<T>(concrete: Constructor<T>, params?: any[]): ValueOrPromise<T> {
     return instantiateClass(concrete, this.context, undefined, params);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  panic(summary: string, exitCode: ExitCode, context?: unknown): void {
+    console.error(chalk.red('Kernel panicked with message:'), summary);
+
+    if (context) {
+      console.error(chalk.red('Captured error context:'), context);
+    }
+
+    // Kill the process.
+    process.exit(exitCode);
   }
 }

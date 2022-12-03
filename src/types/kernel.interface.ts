@@ -1,5 +1,6 @@
 import { BindingAddress, Constructor, ValueOrPromise } from '@loopback/context';
 import { IContext } from './container.interface.js';
+import { ExitCode } from './exit-code.enum.js';
 import { ILogger } from './logger.interface.js';
 import { IModule } from './module.interface.js';
 
@@ -22,12 +23,12 @@ export interface IKernel {
   /**
    * Registers kernel modules
    */
-  register(modules: Constructor<IModule>[]): boolean;
+  register(modules: Constructor<IModule>[]): void;
 
   /**
    * Bootstrap the kernel and invoke the modules
    */
-  boostrap(): Promise<boolean>;
+  boostrap(): Promise<void>;
 
   /**
    * Invoke the ready hooks
@@ -37,7 +38,7 @@ export interface IKernel {
   /**
    * Stop the kernel and propagate the shutdown request to the modules
    */
-  stop(): Promise<boolean>;
+  stop(): Promise<void>;
 
   /**
    * Inject a binding into the context, allows us to replace existing providers.
@@ -59,4 +60,9 @@ export interface IKernel {
     concrete: Constructor<T>,
     nonInjectedArgs?: any[],
   ): ValueOrPromise<T>;
+
+  /**
+   * Kill the kernel and exit the process without graceful shutdown.
+   */
+  panic(summary: string, exitCode: ExitCode, context?: unknown): void;
 }

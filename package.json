@@ -1,6 +1,6 @@
 {
   "name": "@hisorange/kernel",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "description": "Application kernel with context and modular loading support",
   "main": "build/index.js",
   "repository": "https://github.com/hisorange/kernel",
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "prebuild": "rimraf build",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test:types": "tsc --noEmit",
     "test": "node --experimental-vm-modules --no-warnings ./node_modules/.bin/jest"
   },

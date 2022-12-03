@@ -1,0 +1,9 @@
+export enum ExitCode {
+  OK = 0,
+  DISCOVERY_FAILED = 1,
+  REGISTER_FAILED = 2,
+  BOOT_FAILED = 3,
+  START_FAILED = 4,
+  STOP_FAILED = 5,
+  FORCED_SHUTDOWN = 6,
+}

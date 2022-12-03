@@ -243,4 +243,21 @@ describe('Kernel', () => {
       expect(product.logger).toHaveProperty('error');
     });
   });
+
+  describe.skip('Error Management', () => {
+    test('should stop booting on error', () => {
+      const kernel = new Kernel();
+
+      @Module()
+      class ModuleWithError implements IModule {
+        async onBoot(): Promise<void> {
+          throw new Error('An error');
+        }
+      }
+
+      kernel.register([ModuleWithError]);
+
+      expect(kernel.boostrap()).resolves.toBe(false);
+    });
+  });
 });

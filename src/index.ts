@@ -16,6 +16,7 @@ export * from './modules/scheduler.module.js';
 export * from './services/event.service.js';
 export * from './services/scheduler.service.js';
 export * from './types/container.interface.js';
+export * from './types/exit-code.enum.js';
 export * from './types/kernel.interface.js';
 export * from './types/logger.interface.js';
 export * from './types/module.interface.js';
