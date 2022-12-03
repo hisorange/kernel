@@ -14,7 +14,7 @@ describe('Kernel', () => {
     expect(() => new Kernel()).not.toThrow();
   });
 
-  test('should create a logger', () => {
+  test('should create a logger', async () => {
     const kernel = new Kernel();
 
     expect(kernel.logger).toBeDefined();
@@ -22,24 +22,30 @@ describe('Kernel', () => {
     expect(kernel.logger).toHaveProperty('info');
     expect(kernel.logger).toHaveProperty('warn');
     expect(kernel.logger).toHaveProperty('error');
+
+    await kernel.stop();
   });
 
-  test('should create a context', () => {
+  test('should create a context', async () => {
     const kernel = new Kernel();
 
     expect(kernel.context).toBeDefined();
     expect(kernel.context).toBeInstanceOf(Context);
+
+    await kernel.stop();
   });
 
-  test('should define the "' + KERNEL_BINDING + '" binding', () => {
+  test('should define the "' + KERNEL_BINDING + '" binding', async () => {
     const kernel = new Kernel();
 
     expect(kernel.context.contains(KERNEL_BINDING)).toBe(true);
     expect(kernel.context.getSync(KERNEL_BINDING)).toBe(kernel);
+
+    await kernel.stop();
   });
 
   describe('Module Registration', () => {
-    test('should register module providers', () => {
+    test('should register module providers', async () => {
       const kernel = new Kernel();
 
       @Service()
@@ -54,9 +60,11 @@ describe('Kernel', () => {
 
       expect(kernel.context.contains(MyService.name)).toBe(true);
       expect(kernel.context.getSync(MyService.name)).toBeInstanceOf(MyService);
+
+      await kernel.stop();
     });
 
-    test('should inject dependencies', () => {
+    test('should inject dependencies', async () => {
       const kernel = new Kernel();
 
       @Service()
@@ -82,6 +90,8 @@ describe('Kernel', () => {
       expect(
         kernel.context.getSync<ServiceB>(ServiceB.name).serviceA,
       ).toBeInstanceOf(ServiceA);
+
+      await kernel.stop();
     });
   });
 
@@ -93,12 +103,14 @@ describe('Kernel', () => {
       class ModuleWithOnBootHook implements IModule {
         async onBoot(injectedKernel: IKernel): Promise<void> {
           expect(injectedKernel).toBe(kernel);
-          done();
         }
       }
 
       kernel.register([ModuleWithOnBootHook]);
-      kernel.boostrap();
+      kernel
+        .boostrap()
+        .then(() => kernel.stop())
+        .then(() => done());
     });
 
     test('should call the "onStart" hook', done => {
@@ -108,12 +120,15 @@ describe('Kernel', () => {
       class ModuleWithOnStartHook implements IModule {
         async onStart(injectedKernel: IKernel): Promise<void> {
           expect(injectedKernel).toBe(kernel);
-          done();
         }
       }
 
       kernel.register([ModuleWithOnStartHook]);
-      kernel.boostrap().then(() => kernel.start());
+      kernel
+        .boostrap()
+        .then(() => kernel.start())
+        .then(() => kernel.stop())
+        .then(() => done());
     });
 
     test('should call the "onStop" hook', done => {
@@ -123,7 +138,6 @@ describe('Kernel', () => {
       class ModuleWithOnStopHook implements IModule {
         async onStop(injectedKernel: IKernel): Promise<void> {
           expect(injectedKernel).toBe(kernel);
-          done();
         }
       }
 
@@ -131,7 +145,8 @@ describe('Kernel', () => {
       kernel
         .boostrap()
         .then(() => kernel.start())
-        .then(() => kernel.stop());
+        .then(() => kernel.stop())
+        .then(() => done());
     });
   });
 
@@ -180,11 +195,13 @@ describe('Kernel', () => {
       expect(myClass.myService).toBeInstanceOf(MyService);
       expect(myClass.one).toBe(1);
       expect(myClass.two).toBe(2);
+
+      await kernel.stop();
     });
   });
 
   describe('Providers', () => {
-    test('should resolve a provider by value', () => {
+    test('should resolve a provider by value', async () => {
       const kernel = new Kernel();
 
       class TheProduct {}
@@ -212,6 +229,8 @@ describe('Kernel', () => {
       const resolve2 = kernel.context.getSync(TheProduct.name);
 
       expect(resolve1).toBe(resolve2);
+
+      await kernel.stop();
     });
   });
 
@@ -241,6 +260,8 @@ describe('Kernel', () => {
       expect(product.logger).toHaveProperty('info');
       expect(product.logger).toHaveProperty('warn');
       expect(product.logger).toHaveProperty('error');
+
+      await kernel.stop();
     });
   });
 

@@ -61,16 +61,14 @@ export class Kernel implements IKernel {
     this.context.bind(KERNEL_BINDING).to(this);
 
     this.logger.info('Context is ready!');
-
-    this.registerSignalHandlers();
   }
 
   /**
    * Hook to allow the kernel to register the signals it wants to listen to.
    */
   protected registerSignalHandlers(): void {
-    process.on('SIGINT', this.handleShutdown.bind(this));
-    process.on('SIGTERM', this.handleShutdown.bind(this));
+    process.once('SIGINT', this.handleShutdown.bind(this));
+    process.once('SIGTERM', this.handleShutdown.bind(this));
   }
 
   /**
@@ -248,6 +246,8 @@ export class Kernel implements IKernel {
    * @inheritdoc
    */
   async boostrap(): Promise<void> {
+    this.registerSignalHandlers();
+
     this.logger.debug('Boostrap request received');
     this.logger.debug('Invoking the module bootstrap sequence...');
 
@@ -434,7 +434,12 @@ export class Kernel implements IKernel {
    * @inheritdoc
    */
   create<T>(concrete: Constructor<T>, params?: any[]): ValueOrPromise<T> {
-    return instantiateClass(concrete, this.context, undefined, params);
+    return instantiateClass(
+      concrete as Constructor<object>,
+      this.context,
+      undefined,
+      params,
+    ) as ValueOrPromise<T>;
   }
 
   /**
