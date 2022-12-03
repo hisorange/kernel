@@ -62,12 +62,21 @@ export class Kernel implements IKernel {
 
     this.logger.info('Context is ready!');
 
-    // Register the shutdown hooks.
-    process.on('SIGINT', this.shutdownHandler.bind(this));
-    process.on('SIGTERM', this.shutdownHandler.bind(this));
+    this.registerSignalHandlers();
   }
 
-  protected async shutdownHandler(signal: NodeJS.Signals): Promise<void> {
+  /**
+   * Hook to allow the kernel to register the signals it wants to listen to.
+   */
+  protected registerSignalHandlers(): void {
+    process.on('SIGINT', this.handleShutdown.bind(this));
+    process.on('SIGTERM', this.handleShutdown.bind(this));
+  }
+
+  /**
+   * Process a shutdown request, this will stop the application and exit.
+   */
+  protected async handleShutdown(signal: NodeJS.Signals): Promise<void> {
     console.log('');
 
     if (this.logger) {
@@ -77,6 +86,8 @@ export class Kernel implements IKernel {
     }
 
     await this.stop();
+
+    process.exit(ExitCode.OK);
   }
 
   /**
@@ -308,6 +319,8 @@ export class Kernel implements IKernel {
 
     // Check for stop hook
     if (module.onStop) {
+      this.logger.debug('Module [%s] stopping', value.name);
+
       await timeout(
         module
           .onStop(this)
@@ -332,7 +345,7 @@ export class Kernel implements IKernel {
     const timeout = // Graceful shutdown timeout
       setTimeout(() => {
         this.panic(
-          'Modules did not shutdown in time, forcing shutdown',
+          'Kernel could not shutdown in time, forcing it now!',
           ExitCode.FORCED_SHUTDOWN,
         );
       }, 10_000);
@@ -356,9 +369,9 @@ export class Kernel implements IKernel {
     this.logger.info('Shutdown sequence successful! See You <3');
 
     clearTimeout(timeout);
-    process.off('SIGINT', this.shutdownHandler.bind(this));
-    process.off('SIGTERM', this.shutdownHandler.bind(this));
-    process.exit(ExitCode.OK);
+
+    process.off('SIGINT', this.handleShutdown.bind(this));
+    process.off('SIGTERM', this.handleShutdown.bind(this));
   }
 
   /**
