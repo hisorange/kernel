@@ -16,7 +16,7 @@ export function Logger(
     },
     async (ctx: Context, injection): Promise<ILogger> =>
       (await ctx.get<IKernel>('Kernel')).logger.child({
-        service: scope ?? (injection.target as Function).name,
+        scope: scope ?? (injection.target as Function).name,
       }),
   );
 }

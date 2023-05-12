@@ -16,8 +16,8 @@ import { default as timeout } from 'p-timeout';
 import { KERNEL_BINDING } from './bindings.js';
 import {
   IModuleMeta,
-  ModuleConcrete,
   MODULE_META_KEY,
+  ModuleConcrete,
 } from './decorator/module.decorator.js';
 
 import { Exception } from './exceptions/exception.js';
@@ -293,10 +293,10 @@ export class Kernel implements IKernel {
               ),
             )
             .catch(e =>
-              this.logger.warn(
-                'Module [%s] had an unhandled exception in the start hook: [%s]',
-                binding.source.value.name,
-                e?.message,
+              this.panic(
+                `Module [${binding.source.value.name}] had an unhandled exception in the start hook: [${e?.message}]`,
+                ExitCode.START_FAILED,
+                e,
               ),
             ),
         );

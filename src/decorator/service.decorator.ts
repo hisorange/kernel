@@ -23,3 +23,5 @@ export const Service = (
 
   return injectable(config);
 };
+
+export const Provider = Service;
