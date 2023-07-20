@@ -1,7 +1,7 @@
 import { Constructor, MetadataInspector } from '@loopback/context';
 import schedule from 'node-schedule';
 import { Inject } from '../decorator/inject.decorator.js';
-import { JobParams, JOB_META_KEY } from '../decorator/job.decorator.js';
+import { JOB_META_KEY, JobParams } from '../decorator/job.decorator.js';
 import { Logger } from '../decorator/logger.decorator.js';
 import { Service } from '../decorator/service.decorator.js';
 import { IKernel } from '../types/kernel.interface.js';
@@ -12,15 +12,13 @@ export class SchedulerService {
   protected jobs = new Map<string, schedule.Job>();
 
   constructor(
-    @Logger()
-    readonly logger: ILogger,
-    @Inject('Kernel')
-    readonly kernel: IKernel,
+    @Logger() readonly logger: ILogger,
+    @Inject('Kernel') readonly kernel: IKernel,
   ) {}
 
   deregister() {
     this.jobs.forEach((job, name) => {
-      this.logger.info('Canceling job [%s]', name);
+      this.logger.info({ name }, 'Canceling job');
       job.cancel();
     });
   }
@@ -55,10 +53,12 @@ export class SchedulerService {
           );
 
           this.logger.info(
-            'Job [%s] scheduled [%s] next execution [%s]',
-            name,
-            timing,
-            job.nextInvocation().toISOString(),
+            {
+              name,
+              timing,
+              nextInvocation: job.nextInvocation().toISOString(),
+            },
+            'Job scheduled',
           );
         }
       }

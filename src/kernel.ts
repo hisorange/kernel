@@ -78,9 +78,9 @@ export class Kernel implements IKernel {
     console.log('');
 
     if (this.logger) {
-      this.logger.warn('Received shutdown signal [%s]', signal);
+      this.logger.warn({ signal }, 'Received shutdown signal');
     } else {
-      console.warn('Received shutdown signal [%s]', signal);
+      console.warn({ signal }, 'Received shutdown signal');
     }
 
     await this.stop();
@@ -156,9 +156,8 @@ export class Kernel implements IKernel {
               const depKey = `module.${dep.name}`;
 
               this.logger.debug(
-                'Module [%s] is dependent of the [%s] module',
-                name,
-                dep.name,
+                { module: name, dependent: dep.name },
+                'Dependency detected',
               );
 
               this.moduleGraph.addDependency(key, depKey);
@@ -190,9 +189,8 @@ export class Kernel implements IKernel {
               }
 
               this.logger.debug(
-                'Bound [%s] with tags [%s]',
-                binding.key,
-                binding.tagNames.join(','),
+                { binding: binding.key, tags: binding.tagNames },
+                'Bound',
               );
             }
           }
@@ -233,7 +231,7 @@ export class Kernel implements IKernel {
       await timeout(
         module
           .onBoot(this)
-          .then(() => this.logger.debug('Module [%s] started', value.name)),
+          .then(() => this.logger.debug({ name: value.name }, 'Module booted')),
         {
           message: `Module [${value.name}] could not finish it's boot in 60 seconds`,
           milliseconds: 60000,
@@ -288,8 +286,8 @@ export class Kernel implements IKernel {
             .onStart(this)
             .then(() =>
               this.logger.debug(
-                'Module [%s] started',
-                binding.source.value.name,
+                { name: binding.source.value.name },
+                'Module started',
               ),
             )
             .catch(e =>
@@ -319,19 +317,24 @@ export class Kernel implements IKernel {
 
     // Check for stop hook
     if (module.onStop) {
-      this.logger.debug('Module [%s] stopping', value.name);
+      this.logger.debug(
+        { name: value.name },
+        'Module stop requested, waiting for the module to finish...',
+      );
 
       await timeout(
         module
           .onStop(this)
-          .then(() => this.logger.debug('Module [%s] stopped', value.name)),
+          .then(() =>
+            this.logger.debug({ name: value.name }, 'Module stopped'),
+          ),
         {
           milliseconds: 10_000,
           message: `Module [${value.name}] could not finish it's shutdown in 10 seconds`,
         },
       );
     } else {
-      this.logger.debug('Module [%s] stopped', value.name);
+      this.logger.debug({ name: value.name }, 'Module stopped');
     }
   }
 

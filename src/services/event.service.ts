@@ -3,18 +3,15 @@ import EventEmitter2 from 'eventemitter2';
 import debounce from 'lodash.debounce';
 import { Inject } from '../decorator/inject.decorator.js';
 import { Logger } from '../decorator/logger.decorator.js';
-import { OnParams, ON_META_KEY } from '../decorator/on.decorator.js';
+import { ON_META_KEY, OnParams } from '../decorator/on.decorator.js';
 import { IKernel } from '../types/kernel.interface.js';
 import { ILogger } from '../types/logger.interface.js';
 
 export class EventService {
   constructor(
-    @Logger()
-    readonly logger: ILogger,
-    @Inject(EventEmitter2)
-    readonly eventBus: EventEmitter2,
-    @Inject('Kernel')
-    readonly kernel: IKernel,
+    @Logger() readonly logger: ILogger,
+    @Inject(EventEmitter2) readonly eventBus: EventEmitter2,
+    @Inject('Kernel') readonly kernel: IKernel,
   ) {}
 
   async register() {
@@ -45,7 +42,7 @@ export class EventService {
 
           this.eventBus['on'](mdata.event, handler, mdata.options);
 
-          this.logger.debug('Event handler [%s] registered', mdata.event);
+          this.logger.debug(mdata.event, 'Event handler [%s] registered');
         }
       }
     }

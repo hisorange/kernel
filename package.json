@@ -1,6 +1,6 @@
 {
   "name": "@hisorange/kernel",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description": "Async application kernel with context and modular loading support",
   "main": "build/index.js",
   "repository": "https://github.com/hisorange/kernel",
@@ -19,23 +19,23 @@
   },
   "devDependencies": {
     "@types/jest": "^29.2.0",
-    "@types/node": "^18.8.0",
+    "@types/node": "^20.0.0",
     "@types/node-schedule": "^2.1.0",
     "jest": "^29.2.2",
-    "rimraf": "^3.0.2",
+    "rimraf": "^5.0.0",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
+    "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@loopback/context": "^5.0.3",
-    "@loopback/metadata": "^5.0.3",
+    "@loopback/context": "^6.0.0",
+    "@loopback/metadata": "^6.0.0",
     "chalk": "^5.1.2",
     "dependency-graph": "^0.11.0",
     "eventemitter2": "^6.4.9",
     "lodash.debounce": "^4.0.8",
     "node-schedule": "^2.1.0",
     "p-timeout": "^6.0.0",
-    "winston": "^3.8.2"
+    "pino": "^8.14.1"
   }
 }
