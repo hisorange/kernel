@@ -477,14 +477,17 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  async fork<R = void>(id: string, task: () => Promise<R>): Promise<R> {
+  async fork<R = void>(
+    id: string,
+    task: (context: IContext) => Promise<R>,
+  ): Promise<R> {
     let result: R;
 
     const context = new Context(this.context, id);
     context.scope = Scope.REQUEST;
 
     try {
-      result = await this.store.run(context, task);
+      result = await this.store.run(context, () => task(context));
     } catch (error) {
       throw error;
     } finally {

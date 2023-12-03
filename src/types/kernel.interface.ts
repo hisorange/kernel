@@ -75,5 +75,8 @@ export interface IKernel {
   /**
    * Fork a new context and execute the handler in it, this creates an async local context.
    */
-  fork<T = void>(contextId: string, handler: () => Promise<T>): Promise<T>;
+  fork<T = void>(
+    id: string,
+    handler: (context: IContext) => Promise<T>,
+  ): Promise<T>;
 }
