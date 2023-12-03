@@ -1,6 +1,6 @@
 import { Context, inject } from '@loopback/context';
-import { IKernel } from '../types/kernel.interface.js';
-import { ILogger } from '../types/logger.interface.js';
+import { KernelBinding } from '../bindings.js';
+import { type ILogger } from '../types/logger.interface.js';
 
 export function Logger(
   scope?: string,
@@ -10,12 +10,12 @@ export function Logger(
   methodDescriptorOrParameterIndex?: number | TypedPropertyDescriptor<unknown>,
 ) => void {
   return inject(
-    'Kernel',
+    KernelBinding.logger,
     {
       decorator: '@Logger',
     },
     async (ctx: Context, injection): Promise<ILogger> =>
-      (await ctx.get<IKernel>('Kernel')).logger.child({
+      (await ctx.get(KernelBinding.logger)).child({
         scope: scope ?? (injection.target as Function).name,
       }),
   );

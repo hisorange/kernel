@@ -1,5 +1,5 @@
 import { Context, Provider, ValueOrPromise } from '@loopback/context';
-import { KERNEL_BINDING } from './bindings.js';
+import { KernelBinding } from './bindings.js';
 import { Inject } from './decorator/inject.decorator.js';
 import { Logger } from './decorator/logger.decorator.js';
 import { Module } from './decorator/module.decorator.js';
@@ -35,11 +35,11 @@ describe('Kernel', () => {
     await kernel.stop();
   });
 
-  test('should define the "' + KERNEL_BINDING + '" binding', async () => {
+  test('should define the "kernel" binding', async () => {
     const kernel = new Kernel();
 
-    expect(kernel.context.contains(KERNEL_BINDING)).toBe(true);
-    expect(kernel.context.getSync(KERNEL_BINDING)).toBe(kernel);
+    expect(kernel.context.contains(KernelBinding.kernel)).toBe(true);
+    expect(kernel.context.getSync(KernelBinding.kernel)).toBe(kernel);
 
     await kernel.stop();
   });

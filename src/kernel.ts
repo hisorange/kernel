@@ -13,7 +13,7 @@ import {
 import chalk from 'chalk';
 import { DepGraph } from 'dependency-graph';
 import { default as timeout } from 'p-timeout';
-import { KERNEL_BINDING } from './bindings.js';
+import { KernelBinding } from './bindings.js';
 import {
   IModuleMeta,
   MODULE_META_KEY,
@@ -60,7 +60,8 @@ export class Kernel implements IKernel {
     this.logger = logger || createLogger();
     this.logger.debug('Creating the context...');
 
-    this.context.bind(KERNEL_BINDING).to(this);
+    this.context.bind(KernelBinding.logger).to(this.logger);
+    this.context.bind(KernelBinding.kernel).to(this);
 
     this.logger.info('Context is ready!');
   }
