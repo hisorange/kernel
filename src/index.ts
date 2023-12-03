@@ -20,3 +20,4 @@ export * from './types/exit-code.enum.js';
 export * from './types/kernel.interface.js';
 export * from './types/logger.interface.js';
 export * from './types/module.interface.js';
+export * from './types/scope.enum.js';

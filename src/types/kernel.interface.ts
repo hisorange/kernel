@@ -1,4 +1,5 @@
 import { BindingAddress, Constructor, ValueOrPromise } from '@loopback/context';
+import { AsyncLocalStorage } from 'async_hooks';
 import { IContext } from './container.interface.js';
 import { ExitCode } from './exit-code.enum.js';
 import { ILogger } from './logger.interface.js';
@@ -19,6 +20,11 @@ export interface IKernel {
    * When the instance started.
    */
   readonly bootAt: Date;
+
+  /**
+   * Reference to the main async local storage.
+   */
+  readonly store: AsyncLocalStorage<IContext>;
 
   /**
    * Registers kernel modules
@@ -65,4 +71,9 @@ export interface IKernel {
    * Kill the kernel and exit the process without graceful shutdown.
    */
   panic(summary: string, exitCode: ExitCode, context?: unknown): void;
+
+  /**
+   * Fork a new context and execute the handler in it, this creates an async local context.
+   */
+  fork<T = void>(contextId: string, handler: () => Promise<T>): Promise<T>;
 }

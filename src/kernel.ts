@@ -20,6 +20,7 @@ import {
   ModuleConcrete,
 } from './decorator/module.decorator.js';
 
+import { AsyncLocalStorage } from 'async_hooks';
 import { Exception } from './exceptions/exception.js';
 import { createLogger } from './logger/create-logger.js';
 import { IContext } from './types/container.interface.js';
@@ -27,6 +28,7 @@ import { ExitCode } from './types/exit-code.enum.js';
 import { IKernel } from './types/kernel.interface.js';
 import { ILogger } from './types/logger.interface.js';
 import { IModule } from './types/module.interface.js';
+import { Scope } from './types/scope.enum.js';
 
 /**
  * Kernel is responsible to manage the modules defined by the developer,
@@ -38,9 +40,10 @@ import { IModule } from './types/module.interface.js';
  * module onStart hooks.
  */
 export class Kernel implements IKernel {
-  readonly context: IContext;
   readonly logger: ILogger;
-  readonly bootAt: Date = new Date();
+  readonly context = new Context('app');
+  readonly bootAt = new Date();
+  readonly store = new AsyncLocalStorage<IContext>();
 
   /**
    * Used to build the module loading graph, stores the startup dependency links
@@ -57,7 +60,6 @@ export class Kernel implements IKernel {
     this.logger = logger || createLogger();
     this.logger.debug('Creating the context...');
 
-    this.context = new Context('app');
     this.context.bind(KERNEL_BINDING).to(this);
 
     this.logger.info('Context is ready!');
@@ -470,5 +472,25 @@ export class Kernel implements IKernel {
 
     // Kill the process.
     process.exit(exitCode);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async fork<R = void>(id: string, task: () => Promise<R>): Promise<R> {
+    let result: R;
+
+    const context = new Context(this.context, id);
+    context.scope = Scope.REQUEST;
+
+    try {
+      result = await this.store.run(context, task);
+    } catch (error) {
+      throw error;
+    } finally {
+      context.close();
+    }
+
+    return result;
   }
 }
