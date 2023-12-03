@@ -19,6 +19,9 @@ type InjectDecorator = (
     | undefined,
 ) => void;
 
+/**
+ * Inject a dependency by the name or binding key
+ */
 export const Inject: InjectDecorator = function (
   bindingSelector: BindingSelector | Constructor<object>,
   metadata?: InjectionMetadata,

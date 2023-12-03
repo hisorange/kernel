@@ -380,7 +380,11 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  replace(key: BindingAddress | Constructor<object>, value: any): void {
+  replace(
+    key: BindingAddress | Constructor<object>,
+    value: any,
+    inContext?: IContext,
+  ): void {
     // Binding key can be a class and we use the class's name to resolve it.
     if (typeof key === 'function') {
       if (key?.name) {
@@ -388,16 +392,18 @@ export class Kernel implements IKernel {
       }
     }
 
+    if (!inContext) inContext = this.context;
+
     key = key as BindingAddress;
 
-    if (!this.context.contains(key)) {
+    if (!inContext.contains(key)) {
       throw new Exception(`Binding [${key}] is not registered`);
     }
 
-    const binding = this.context.getBinding(key);
+    const binding = inContext.getBinding(key);
 
     // Clear the cached resolution.
-    binding.refresh(this.context);
+    binding.refresh(inContext);
 
     switch (binding.type) {
       case BindingType.CONSTANT:
@@ -420,7 +426,10 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  async get<T>(key: BindingAddress<T> | Constructor<object>): Promise<T> {
+  async get<T>(
+    key: BindingAddress<T> | Constructor<object>,
+    inContext?: IContext,
+  ): Promise<T> {
     // Binding key can be a class and we use the class's name to resolve it.
     if (typeof key === 'function') {
       if (key?.name) {
@@ -430,16 +439,20 @@ export class Kernel implements IKernel {
 
     key = key as BindingAddress;
 
-    return this.context.get<T>(key);
+    return (inContext ?? this.context).get<T>(key);
   }
 
   /**
    * @inheritdoc
    */
-  create<T>(concrete: Constructor<T>, params?: any[]): ValueOrPromise<T> {
+  create<T>(
+    concrete: Constructor<T>,
+    params?: any[],
+    inContext?: IContext,
+  ): ValueOrPromise<T> {
     return instantiateClass(
       concrete as Constructor<object>,
-      this.context,
+      inContext ?? this.context,
       undefined,
       params,
     ) as ValueOrPromise<T>;
@@ -448,11 +461,11 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  panic(summary: string, exitCode: ExitCode, context?: unknown): void {
+  panic(summary: string, exitCode: ExitCode, errorContext?: unknown): void {
     console.error(chalk.red('Kernel panicked with message:'), summary);
 
-    if (context) {
-      console.error(chalk.red('Captured error context:'), context);
+    if (errorContext) {
+      console.error(chalk.red('Captured error context:'), errorContext);
     }
 
     // Kill the process.
