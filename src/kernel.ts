@@ -41,7 +41,7 @@ import { Scope } from './types/scope.enum.js';
  */
 export class Kernel implements IKernel {
   readonly logger: ILogger;
-  readonly context = new Context('app');
+  readonly _context = new Context('app');
   readonly bootAt = new Date();
   readonly store = new AsyncLocalStorage<IContext>();
 
@@ -63,6 +63,14 @@ export class Kernel implements IKernel {
     this.context.bind(KERNEL_BINDING).to(this);
 
     this.logger.info('Context is ready!');
+  }
+
+  /**
+   * Reroute the context request depending on the store state.
+   * This allows the kernel to resolve the binding depending on the scope of the request.
+   */
+  get context(): IContext {
+    return this.store.getStore() ?? this._context;
   }
 
   /**
@@ -382,11 +390,7 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  replace(
-    key: BindingAddress | Constructor<object>,
-    value: any,
-    inContext?: IContext,
-  ): void {
+  replace(key: BindingAddress | Constructor<object>, value: any): void {
     // Binding key can be a class and we use the class's name to resolve it.
     if (typeof key === 'function') {
       if (key?.name) {
@@ -394,18 +398,16 @@ export class Kernel implements IKernel {
       }
     }
 
-    if (!inContext) inContext = this.context;
-
     key = key as BindingAddress;
 
-    if (!inContext.contains(key)) {
+    if (!this.context.contains(key)) {
       throw new Exception(`Binding [${key}] is not registered`);
     }
 
-    const binding = inContext.getBinding(key);
+    const binding = this.context.getBinding(key);
 
     // Clear the cached resolution.
-    binding.refresh(inContext);
+    binding.refresh(this.context);
 
     switch (binding.type) {
       case BindingType.CONSTANT:
@@ -428,10 +430,7 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  async get<T>(
-    key: BindingAddress<T> | Constructor<object>,
-    inContext?: IContext,
-  ): Promise<T> {
+  async get<T>(key: BindingAddress<T> | Constructor<object>): Promise<T> {
     // Binding key can be a class and we use the class's name to resolve it.
     if (typeof key === 'function') {
       if (key?.name) {
@@ -441,20 +440,16 @@ export class Kernel implements IKernel {
 
     key = key as BindingAddress;
 
-    return (inContext ?? this.context).get<T>(key);
+    return this.context.get<T>(key);
   }
 
   /**
    * @inheritdoc
    */
-  create<T>(
-    concrete: Constructor<T>,
-    params?: any[],
-    inContext?: IContext,
-  ): ValueOrPromise<T> {
+  create<T>(concrete: Constructor<T>, params?: any[]): ValueOrPromise<T> {
     return instantiateClass(
       concrete as Constructor<object>,
-      inContext ?? this.context,
+      this.context,
       undefined,
       params,
     ) as ValueOrPromise<T>;
@@ -463,11 +458,11 @@ export class Kernel implements IKernel {
   /**
    * @inheritdoc
    */
-  panic(summary: string, exitCode: ExitCode, errorContext?: unknown): void {
+  panic(summary: string, exitCode: ExitCode, context?: unknown): void {
     console.error(chalk.red('Kernel panicked with message:'), summary);
 
-    if (errorContext) {
-      console.error(chalk.red('Captured error context:'), errorContext);
+    if (context) {
+      console.error(chalk.red('Captured error context:'), context);
     }
 
     // Kill the process.
