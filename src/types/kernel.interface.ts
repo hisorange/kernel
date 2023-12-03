@@ -4,6 +4,7 @@ import { IContext } from './container.interface.js';
 import { ExitCode } from './exit-code.enum.js';
 import { ILogger } from './logger.interface.js';
 import { IModule } from './module.interface.js';
+import { Scope } from './scope.enum.js';
 
 export interface IKernel {
   /**
@@ -77,6 +78,7 @@ export interface IKernel {
    */
   fork<T = void>(
     id: string,
-    handler: (context: IContext) => Promise<T>,
+    scope: Scope,
+    task: (context: IContext) => Promise<T>,
   ): Promise<T>;
 }

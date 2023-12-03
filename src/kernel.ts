@@ -60,6 +60,7 @@ export class Kernel implements IKernel {
     this.logger = logger || createLogger();
     this.logger.debug('Creating the context...');
 
+    this.context.scope = Scope.APPLICATION;
     this.context.bind(KernelBinding.logger).to(this.logger);
     this.context.bind(KernelBinding.kernel).to(this);
 
@@ -475,12 +476,13 @@ export class Kernel implements IKernel {
    */
   async fork<R = void>(
     id: string,
+    scope: Scope,
     task: (context: IContext) => Promise<R>,
   ): Promise<R> {
     let result: R;
 
     const context = new Context(this.context, id);
-    context.scope = Scope.REQUEST;
+    context.scope = scope;
 
     try {
       result = await this.store.run(context, () => task(context));
